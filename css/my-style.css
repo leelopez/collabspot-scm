@@ -1,0 +1,38 @@
+#div-main {
+	margin: 10px;
+}
+
+#div-new {
+	margin-bottom: 20px;
+}
+
+#title {
+	margin: 10px;
+}
+
+#div-search {
+	margin: 10px;
+}
+
+.search-category-label {
+	font-size: 12px;
+}
+
+#contact-list .for-edit {
+	display: none;
+}
+
+#contact-list .editing .no-edit  {
+	display: none;
+}
+
+#contact-list .editing .for-edit {
+	display: inline;
+}
+
+#tb-new-lastName {
+	margin-left: 20px;
+}
+
+. = class
+# = id
