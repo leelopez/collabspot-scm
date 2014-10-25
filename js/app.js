@@ -12,7 +12,7 @@ $(function () {
 
   app.ContactList = Backbone.Collection.extend({
     model: app.Contact,
-    localStorage: new Store("contacts-storage"),
+    localStorage: new Backbone.LocalStorage("contacts-storage"),
 
     search : function(keyword, attr){
       if(keyword == "") return this;
@@ -89,7 +89,7 @@ $(function () {
     initialize: function () {
       app.contacts.on('add', this.addAll, this);
       app.contacts.on('reset', this.addAll, this);
-      app.contacts.fetch(); // Loads list from local storage
+      app.contacts.fetch();
     },
 
     events: {
@@ -111,6 +111,13 @@ $(function () {
       }
     },
 
+    clearInputs: function(){
+      this.$('#tb-new-lastName').val('');
+      this.$('#tb-new-firstName').val('');
+      this.$('#tb-new-email').val('');
+      this.$('#tb-new-phoneNumber').val('');
+    },
+
     createContact: function(newLN, newFN, newE, newPN){
       app.contacts.create({
         lastName: newLN,
@@ -120,13 +127,6 @@ $(function () {
       });
 
       this.clearInputs();
-    },
-
-    clearInputs: function(){
-      this.$('#tb-new-lastName').val('');
-      this.$('#tb-new-firstName').val('');
-      this.$('#tb-new-email').val('');
-      this.$('#tb-new-phoneNumber').val('');
     },
 
     clearList: function(){
@@ -165,6 +165,6 @@ $(function () {
     }
   });
 
-  app.appView = new app.AppView(); 
+  app.appView = new app.AppView();
 });
 
