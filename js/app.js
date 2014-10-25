@@ -95,7 +95,10 @@ $(function () {
     events: {
       'click #btn-new': 'checkInputs',
       'click #btn-clear': 'clearInputs',
-      'click #btn-search': 'searchContacts'
+      'click #btn-search': 'searchContacts',
+      'click #view-all': function(){
+        this.addAll();
+      }
     },
 
     checkInputs: function(){
