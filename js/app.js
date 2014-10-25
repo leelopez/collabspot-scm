@@ -144,10 +144,10 @@ $(function () {
     },
 
     formatType: function(type){
-      if (type == "lastName") return "Last Name";
-      if (type == "firstName") return "First Name";
-      if (type == "email") return "E-mail";
-      if (type == "phoneNumber") return "Phone Number";
+      if (type == "lastName") return $("#lbl-lastName").html();
+      if (type == "firstName") return $("#lbl-firstName").html();
+      if (type == "email") return $("#lbl-email").html();
+      if (type == "phoneNumber") return $("#lbl-phoneNumber").html();
       return "";
     },
 
