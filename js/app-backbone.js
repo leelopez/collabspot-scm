@@ -18,34 +18,37 @@ $(function () {
       if(keyword == "") return this;
       var matcher = new RegExp(keyword,"i");
       return _(this.filter(function(data) {
-        return matcher.test(data.get(attr));
+        return matcher.test(data.get((attr)));
       }));
     }
   });
 
   app.contacts = new app.ContactList();
 
-  app.ContactView = Marionette.ItemView.extend({
+  app.ContactView = Backbone.View.extend({
     tagName: 'tr',
-    template: '#item-template',
+    template: _.template($('#item-template').html()),
 
-    modelEvents: {
-      "change": "render"
-    },
+    initialize: function(){
+      this.model.on('change', this.render, this);
+      this.model.on('destroy', this.remove, this);
+    },  
 
     events: {
       'click #btn-edit' : 'editContact',
       'click #btn-save' : 'checkInputs',
       'click #btn-cancel' : 'removeUpdateForm',
       'click #btn-destroy': 'destroyContact'
-    } ,
+    },
+
+    render: function(){
+      this.$el.html(this.template(this.model.toJSON()));
+      this.input = this.$('.for-edit');
+      return this;
+    },
 
     editContact: function(){
       this.$el.addClass('editing');
-      this.$('#tb-lastName').val(this.model.get('lastName'));
-      this.$('#tb-firstName').val(this.model.get('firstName'));
-      this.$('#tb-email').val(this.model.get('email'));
-      this.$('#tb-phoneNumber').val(this.model.get('phoneNumber'));
     },
 
     checkInputs: function(){
@@ -77,25 +80,15 @@ $(function () {
         email: newE,
         phoneNumber: newPN
       });
-    }
+    }     
   });
 
-  app.ContactListView = Backbone.Marionette.CompositeView.extend({
-    childView: app.ContactView,
-    childViewContainer: '#contact-list',
-    template: '#item-table-template',
-
-    onRender: function(){
-      $('#div-table').html('');
-      $('#div-table').append(this.el);
-    }
-  });
-
-  app.AppView = Marionette.ItemView.extend({
+  app.AppView = Backbone.View.extend({
     el: '#div-main',
 
     initialize: function () {
-      app.contacts.on('add', this.render(app.contacts), this);
+      app.contacts.on('add', this.addAll, this);
+      app.contacts.on('reset', this.addAll, this);
       app.contacts.fetch();
     },
 
@@ -104,15 +97,8 @@ $(function () {
       'click #btn-clear': 'clearInputs',
       'click #btn-search': 'searchContacts',
       'click #view-all': function(){
-        this.render(app.contacts);
+        this.addAll();
       }
-    },
-
-    render: function(contacts){
-      var listView = new app.ContactListView({
-        collection: contacts
-      });
-      listView.render();
     },
 
     checkInputs: function(){
@@ -154,15 +140,10 @@ $(function () {
       var qKeyword = this.$('#tb-search').val().trim();
       var qType = $('input[name=search-category]:checked').val();
       var matches = app.contacts.search(qKeyword, qType);
-
-      var temp = new app.ContactList();
-      matches.each(function(data){
-        var newContact = new app.ContactView({model: data});
-        temp.add(newContact.model);
-      }, this);
-
-      this.render(temp);
+      
       $("#table-title").html("Search result for '" + qKeyword + "' in " + this.formatType(qType));
+      this.clearList();
+      matches.each(this.addOne, this);
     },
 
     formatType: function(type){
@@ -171,7 +152,22 @@ $(function () {
       if (type == "email") return $("#lbl-email").html();
       if (type == "phoneNumber") return $("#lbl-phoneNumber").html();
       return "";
+    },
+
+    addAll: function(){
+      $("#table-title").html("All Contacts");
+      this.clearList();
+      app.contacts.each(this.addOne, this);
+    },
+
+    addOne: function(contact){
+      var newContact = new app.ContactView({model: contact});
+      if(!this.qKeyword || (this.qKeyword && this.isMatch(newContact))){
+        $('#contact-list').append(newContact.render().el);
+      }
     }
   });
+
   app.appView = new app.AppView();
 });
+
